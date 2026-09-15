@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resume Desk</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B2430'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' stroke='%232F6F5E' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===================== Auth view ===================== -->
+<main id="authView" class="auth-view">
+  <div class="auth-card">
+    <p class="wordmark">Resume Desk</p>
+    <h1 id="authHeading">Sign in</h1>
+    <p class="auth-sub" id="authSub">Pick up where you left off with your applications.</p>
+
+    <form id="authForm" class="stack-form" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email" autofocus />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="current-password" minlength="8" />
+        <p class="field-hint">At least 8 characters.</p>
+      </div>
+
+      <p class="field-error" id="authError" hidden></p>
+
+      <button type="submit" id="authSubmit" class="btn-primary">Sign in</button>
+    </form>
+
+    <p class="auth-toggle">
+      <span id="authToggleText">New here?</span>
+      <button type="button" id="authToggleBtn" class="btn-link">Create an account</button>
+    </p>
+  </div>
+</main>
+
+<!-- ===================== App shell ===================== -->
+<div id="appView" class="app-shell" hidden>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <nav class="sidebar">
+    <p class="wordmark">Resume Desk</p>
+    <ul class="nav-list">
+      <li><button class="nav-btn is-active" data-section="dashboard">Dashboard</button></li>
+      <li><button class="nav-btn" data-section="analyze">Resume analysis</button></li>
+      <li><button class="nav-btn" data-section="finder">Job finder</button></li>
+      <li><button class="nav-btn" data-section="match">Job match</button></li>
+      <li><button class="nav-btn" data-section="tracker">Applications</button></li>
+    </ul>
+    <div class="sidebar-foot">
+      <p class="user-email" id="userEmail"></p>
+      <button id="signOutBtn" class="btn-link">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-panel">
+    <button type="button" class="btn-link back-link" id="backLink" hidden>← Back</button>
+
+    <!-- ---- Dashboard ---- -->
+    <section id="section-dashboard" class="panel-section">
+      <header class="panel-header">
+        <h1>Dashboard</h1>
+        <p>Where things stand, at a glance.</p>
+      </header>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <p class="stat-num" id="statTotal">0</p>
+          <p class="stat-label">Total applications</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-num" id="statInterview">0</p>
+          <p class="stat-label">Interviewing</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-num" id="statOffer">0</p>
+          <p class="stat-label">Offers</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-num" id="statRejected">0</p>
+          <p class="stat-label">Rejected</p>
+        </div>
+      </div>
+
+      <div class="stat-bar-wrap" id="statBarWrap" hidden>
+        <div class="stat-bar" id="statBar"></div>
+      </div>
+      <p class="empty-state" id="dashboardEmptyState">No applications tracked yet — add your first one in Applications.</p>
+
+      <div class="quick-links">
+        <button type="button" class="quick-link-card" data-section="analyze">
+          <p class="quick-link-title">Analyze a resume</p>
+          <p class="quick-link-sub" id="lastAnalyzeSummary">No resume analyzed yet this session</p>
+        </button>
+        <button type="button" class="quick-link-card" data-section="finder">
+          <p class="quick-link-title">Find a job</p>
+          <p class="quick-link-sub">Search real listings from Arbeitnow + Jooble</p>
+        </button>
+        <button type="button" class="quick-link-card" data-section="match">
+          <p class="quick-link-title">Check a match</p>
+          <p class="quick-link-sub" id="lastMatchSummary">No match checked yet this session</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- ---- Resume analysis ---- -->
+    <section id="section-analyze" class="panel-section" hidden>
+      <header class="panel-header">
+        <h1>Resume analysis</h1>
+        <p>Upload a resume to get an ATS score, extracted skills, and specific edits to make it stronger.</p>
+      </header>
+
+      <div class="upload-row">
+        <label class="file-label" for="analyzeFile">
+          <span id="analyzeFileName">Choose a resume — PDF or DOCX</span>
+        </label>
+        <input type="file" id="analyzeFile" accept=".pdf,.docx" hidden />
+        <button id="analyzeBtn" class="btn-primary" disabled>Analyze resume</button>
+      </div>
+
+      <p class="field-error" id="analyzeError" hidden></p>
+      <p class="loading-line" id="analyzeLoading" hidden><span class="spinner"></span>Reading your resume and scoring it — this can take up to a minute.</p>
+
+      <div id="analyzeResults" class="results" hidden>
+        <div class="score-block">
+          <div class="score-ring" id="atsScoreRing" style="--pct: 0">
+            <p class="score-num" id="atsScore">—</p>
+          </div>
+          <div class="score-info">
+            <p class="score-label">ATS fit score</p>
+            <p class="score-reason" id="atsReason"></p>
+            <p class="cached-badge" id="analyzeCachedBadge" hidden>Instant result — served from cache</p>
+          </div>
+        </div>
+
+        <div class="chip-group">
+          <h2>Technical skills</h2>
+          <div class="chips" id="technicalSkills"></div>
+        </div>
+        <div class="chip-group">
+          <h2>Soft skills</h2>
+          <div class="chips" id="softSkills"></div>
+        </div>
+
+        <div class="list-columns">
+          <div class="list-group">
+            <h2>Strengths</h2>
+            <ul id="strengthsList"></ul>
+          </div>
+          <div class="list-group">
+            <h2>Suggested edits</h2>
+            <ul id="suggestionsList"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Job finder ---- -->
+    <section id="section-finder" class="panel-section" hidden>
+      <header class="panel-header">
+        <h1>Job finder</h1>
+        <p>Search real listings, then send any of them straight into Job match to check your fit.</p>
+      </header>
+
+      <form id="finderForm" class="finder-form">
+        <div class="finder-form-row">
+          <div class="field">
+            <label for="finderKeyword">Keyword</label>
+            <input type="text" id="finderKeyword" placeholder="e.g. Python, backend, security" />
+          </div>
+          <div class="field">
+            <label for="finderLocation">Location</label>
+            <input type="text" id="finderLocation" placeholder="e.g. Berlin, remote" />
+          </div>
+          <div class="field finder-checkbox-field">
+            <label for="finderRemote">
+              <input type="checkbox" id="finderRemote" />
+              Remote only
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Search jobs</button>
+      </form>
+
+      <p class="field-error" id="finderError" hidden></p>
+      <p class="info-line" id="finderNotice" hidden></p>
+      <p class="loading-line" id="finderLoading" hidden><span class="spinner"></span>Searching listings...</p>
+
+      <div class="job-list" id="jobList"></div>
+
+      <p class="empty-state" id="finderEmptyState" hidden>No listings matched. Try a broader keyword or drop the location filter.</p>
+      <p class="empty-state" id="finderInitialState">Search above to see real job listings.</p>
+    </section>
+    <!-- job-card-actions template (built in JS) includes: Check match, Track application, View posting -->
+
+    <!-- ---- Job match ---- -->
+    <section id="section-match" class="panel-section" hidden>
+      <header class="panel-header">
+        <h1>Job match</h1>
+        <p>Paste a job description to see how your resume lines up, and what to add before you apply.</p>
+      </header>
+
+      <div class="upload-row">
+        <label class="file-label" for="matchFile">
+          <span id="matchFileName">Choose a resume — PDF or DOCX</span>
+        </label>
+        <input type="file" id="matchFile" accept=".pdf,.docx" hidden />
+      </div>
+
+      <div class="field">
+        <label for="jobDescription">Job description</label>
+        <textarea id="jobDescription" rows="8" placeholder="Paste the job posting text here..."></textarea>
+      </div>
+
+      <button id="matchBtn" class="btn-primary" disabled>Check match</button>
+
+      <p class="field-error" id="matchError" hidden></p>
+      <p class="loading-line" id="matchLoading" hidden><span class="spinner"></span>Comparing your resume against the posting — this can take up to a minute.</p>
+
+      <div id="matchResults" class="results" hidden>
+        <div class="score-block">
+          <div class="score-ring" id="matchScoreRing" style="--pct: 0">
+            <p class="score-num" id="matchScore">—</p>
+          </div>
+          <div class="score-info">
+            <p class="score-label">Match score</p>
+            <p class="score-reason" id="matchReason"></p>
+            <p class="cached-badge" id="matchCachedBadge" hidden>Instant result — served from cache</p>
+          </div>
+        </div>
+
+        <div class="chip-group">
+          <h2>Matched skills</h2>
+          <div class="chips" id="matchedSkills"></div>
+        </div>
+        <div class="chip-group">
+          <h2>Missing skills</h2>
+          <div class="chips chips-warn" id="missingSkills"></div>
+        </div>
+        <div class="chip-group">
+          <h2>Missing keywords</h2>
+          <div class="chips chips-warn" id="missingKeywords"></div>
+        </div>
+
+        <div class="list-group">
+          <h2>Tailoring suggestions</h2>
+          <ul id="tailoringList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Applications tracker ---- -->
+    <section id="section-tracker" class="panel-section" hidden>
+      <header class="panel-header">
+        <h1>Applications</h1>
+        <p>Every role you've applied to, and where it stands. Click a card to edit it, or drag it to a new column.</p>
+      </header>
+
+      <form id="appForm" class="app-form">
+        <div class="app-form-row">
+          <div class="field">
+            <label for="companyInput">Company</label>
+            <input type="text" id="companyInput" required />
+          </div>
+          <div class="field">
+            <label for="roleInput">Role</label>
+            <input type="text" id="roleInput" required />
+          </div>
+          <div class="field">
+            <label for="dateInput">Date applied</label>
+            <input type="date" id="dateInput" />
+          </div>
+        </div>
+        <div class="app-form-row">
+          <div class="field">
+            <label for="jobUrlInput">Job posting link</label>
+            <input type="url" id="jobUrlInput" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label for="salaryInput">Salary</label>
+            <input type="text" id="salaryInput" placeholder="e.g. PKR 150,000/month" />
+          </div>
+          <div class="field">
+            <label for="sourceInput">Source</label>
+            <select id="sourceInput">
+              <option value="">Not specified</option>
+              <option value="job_finder">Job finder</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="referral">Referral</option>
+              <option value="company_site">Company site</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field priority-field">
+          <label for="priorityInput">
+            <input type="checkbox" id="priorityInput" />
+            Priority — star this one
+          </label>
+        </div>
+        <div class="field">
+          <label for="notesInput">Notes</label>
+          <textarea id="notesInput" rows="2" placeholder="Optional — referral, recruiter name, next step..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Add application</button>
+      </form>
+
+      <p class="field-error" id="trackerError" hidden></p>
+
+      <div class="tracker-toolbar" id="trackerToolbar" hidden>
+        <div class="field">
+          <label for="trackerSearch">Search</label>
+          <input type="text" id="trackerSearch" placeholder="Filter by company or role..." />
+        </div>
+        <div class="field">
+          <label for="trackerStatusFilter">Status</label>
+          <select id="trackerStatusFilter">
+            <option value="">All statuses</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="trackerSort">Sort by</label>
+          <select id="trackerSort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="company">Company A–Z</option>
+            <option value="updated">Recently updated</option>
+            <option value="priority">Priority first</option>
+          </select>
+        </div>
+        <button type="button" class="btn-link" id="exportCsvBtn">Export CSV</button>
+      </div>
+
+      <div class="board" id="board" hidden>
+        <div class="board-col" data-status="applied">
+          <h2>Applied <span class="col-count" id="count-applied">0</span></h2>
+          <div class="board-col-cards" id="col-applied"></div>
+        </div>
+        <div class="board-col" data-status="interview">
+          <h2>Interview <span class="col-count" id="count-interview">0</span></h2>
+          <div class="board-col-cards" id="col-interview"></div>
+        </div>
+        <div class="board-col" data-status="offer">
+          <h2>Offer <span class="col-count" id="count-offer">0</span></h2>
+          <div class="board-col-cards" id="col-offer"></div>
+        </div>
+        <div class="board-col" data-status="rejected">
+          <h2>Rejected <span class="col-count" id="count-rejected">0</span></h2>
+          <div class="board-col-cards" id="col-rejected"></div>
+        </div>
+      </div>
+
+      <p class="empty-state" id="emptyState" hidden>No applications yet. Add the first one you're applying to, above.</p>
+      <p class="empty-state" id="filterEmptyState" hidden>Nothing matches this search/filter combination.</p>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
